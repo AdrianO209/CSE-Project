@@ -13,11 +13,6 @@ import "./App.css";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
   const [role, setRole] = useState("");
   const [usernameAttempt, setUserNameAttempt] = useState("");
   const [passwordAttempt, setPasswordAttempt] = useState("");
@@ -62,7 +57,6 @@ function App() {
       setLogin(false);
     }
   };
->>>>>>> Stashed changes
 
   if (!isLogin) {
     return (
