@@ -4,9 +4,21 @@ header {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+.header {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  padding: 16px 0;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  border: black solid 5px;
+}
+
 .title {
   color: white;
   text-align: center;
+}
+
+.menu {
+  color: white;
+  text-align: left;
 }
 
 .login-page {
