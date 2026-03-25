@@ -73,14 +73,27 @@ function App() {
             <Typography className="card-title">Sign In</Typography>
 
             <Box className="text-fields">
-              <TextField label="User Name" variant="outlined"></TextField>
+              <TextField
+                label="User Name"
+                value={usernameAttempt}
+                onChange={(e) => setUserNameAttempt(e.target.value)}
+                variant="outlined"
+                error={usernameError !== ""}
+                helperText={usernameError}
+              ></TextField>
               <TextField
                 label="Passward"
                 type="password"
+                value={passwordAttempt}
+                onChange={(e) => setPasswordAttempt(e.target.value)}
                 variant="outlined"
+                error={passwordError !== ""}
+                helperText={passwordError}
               ></TextField>
 
-              <Button variant="contained">Submit</Button>
+              <Button onClick={checkLogin} variant="contained">
+                Submit
+              </Button>
             </Box>
           </Paper>
         </Box>
