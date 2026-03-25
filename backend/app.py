@@ -1,7 +1,8 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager, UserMixin, current_user
+from flask_admin.menu import MenuLink
+from flask_login import LoginManager, UserMixin, current_user, logout_user
 from flask_cors import CORS
 from flask_login.utils import login_user
 from flask_sqlalchemy import SQLAlchemy
@@ -58,6 +59,14 @@ admin = Admin(app, name="AURA Admin")
 
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Course, db.session))
+
+admin.add_link(MenuLink(name="Logout", category="", url="/api/logout"))
+
+
+@app.route("/api/logout")
+def logout():
+    logout_user()
+    return redirect("http://localhost:5173")
 
 
 @app.route("/api/login", methods=["POST"])
