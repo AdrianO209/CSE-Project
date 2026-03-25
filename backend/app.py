@@ -2,7 +2,7 @@ from enum import unique
 from flask import Flask, jsonify, request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
@@ -15,6 +15,9 @@ db = SQLAlchemy(app)
 
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
 enrollments = db.Table(
     "enrollments",
@@ -23,7 +26,7 @@ enrollments = db.Table(
 )
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(50), unique=True, nullable=False)
@@ -36,6 +39,11 @@ class Course(db.Model):
     className = db.Column(db.String(80), unique=True, nullable=False)
     instructor = db.Column(db.String(80), unique=True, nullable=False)
     time = db.Column(db.String(80), nullable=False)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 admin = Admin(app, name="AURA Admin")
