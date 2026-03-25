@@ -2,7 +2,6 @@ from enum import unique
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import backref
 from sqlalchemy.sql import false
 
 app = Flask(__name__)
@@ -21,14 +20,14 @@ enrollments = db.Table(
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.string(80), unique=True, nullable=false)
-    password = db.Column(db.string(50), unique=True, nullable=false)
+    username = db.Column(db.string(80), unique=True, nullable=False)
+    password = db.Column(db.string(50), unique=True, nullable=False)
 
     classes = db.relationship("Class", secondary=enrollments, backref="students")
 
 
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    className = db.Column(db.string(80), unique=True, nullable=false)
-    instructor = db.Column(db.string(80), unique=True, nullable=false)
-    time = db.Column(db.string(80), unique=True, nullable=false)
+    className = db.Column(db.string(80), unique=True, nullable=False)
+    instructor = db.Column(db.string(80), unique=True, nullable=False)
+    time = db.Column(db.string(80), unique=True, nullable=False)
