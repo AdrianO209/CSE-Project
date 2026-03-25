@@ -7,6 +7,7 @@ import {
   TextField,
   Paper,
   Button,
+  Link,
 } from "@mui/material";
 import { auraTheme } from "./theme";
 import "./App.css";
@@ -18,6 +19,7 @@ function App() {
   const [passwordAttempt, setPasswordAttempt] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [username, setUsername] = useState("");
 
   const checkLogin = async () => {
     setPasswordError("");
@@ -46,16 +48,26 @@ function App() {
       }
     }
 
-    const role = result.role;
+    setRole(result.role);
+    setUsername(result.username);
 
-    if (role === "admin") {
+    if (result.role === "admin") {
       window.location.href = "http://127.0.0.1:5000/admin/user/";
       setLogin(true);
-    } else if (role === "student") {
+    } else if (result.role === "student") {
       setLogin(true);
     } else {
       setLogin(false);
     }
+  };
+
+  const logout = async () => {
+    await fetch("/api/logout");
+
+    setLogin(false);
+    setRole("");
+    setUserNameAttempt("");
+    setPasswordAttempt("");
   };
 
   if (!isLogin) {
@@ -116,7 +128,15 @@ function App() {
         <CssBaseline />
         <header className="header">
           <Box className="menu">
-            <Typography variant="h1">Aura</Typography>
+            <Typography variant="h2">Welcome, {username}</Typography>
+            <Link
+              component="button"
+              onClick={logout}
+              variant="h4"
+              sx={{ color: "#ff5252", textDecorationStyle: "#ff5252" }}
+            >
+              Log Out
+            </Link>
           </Box>
         </header>
       </ThemeProvider>

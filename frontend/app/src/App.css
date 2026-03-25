@@ -8,7 +8,6 @@ header {
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   padding: 16px 0;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  border: black solid 5px;
 }
 
 .title {
@@ -17,6 +16,9 @@ header {
 }
 
 .menu {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
   color: white;
   text-align: left;
 }
