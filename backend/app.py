@@ -34,7 +34,7 @@ enrollments = db.Table(
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(50), unique=False, nullable=False)
     role = db.Column(db.String(20), default="student")
 
     classes = db.relationship("Course", secondary=enrollments, backref="students")
@@ -46,7 +46,7 @@ class User(db.Model, UserMixin):
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     className = db.Column(db.String(80), unique=True, nullable=False)
-    instructor = db.Column(db.String(80), unique=True, nullable=False)
+    instructor = db.Column(db.String(80), unique=False, nullable=False)
     time = db.Column(db.String(80), nullable=False)
 
 
@@ -72,15 +72,16 @@ def logout():
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.json
-
     user = User.query.filter_by(username=data.get("username")).first()
 
-    if user and user.checkPassword(data.get("password")):
-        login_user(user)
+    if not user:
+        return jsonify({"usernameError": "The username does not exist"}), 404
 
-        return jsonify({"role": user.role, "username": user.username})
+    if not user.checkPassword(data.get("password")):
+        return jsonify({"passwordError": "Incorrect password. Please try again."}), 401
 
-    return jsonify({"error": "Invalid credentials"}), 401
+    login_user(user)
+    return jsonify({"role": user.role, "username": user.username}), 200
 
 
 if __name__ == "__main__":

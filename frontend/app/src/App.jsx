@@ -13,11 +13,15 @@ import "./App.css";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
-  const [isAdmin, setAdmin] = useState(false);
   const [usernameAttempt, setUserNameAttempt] = useState("");
   const [passwordAttempt, setPasswordAttempt] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
 
   const checkLogin = async () => {
+    setPasswordError("");
+    setUsernameError("");
+
     const response = await fetch("http://127.0.0.1:5000/api/login", {
       method: "POST",
       headers: {
@@ -31,13 +35,25 @@ function App() {
 
     const result = await response.json();
 
-    if (response.ok) {
-      const role = result.role;
-
-      if (role === "admin") {
-        window.location.href = "http://127.0.0.1:5000/admin/user/";
-        setLogin(true);
+    if (!response.ok) {
+      if (response.status === 404) {
+        setUsernameError(result.usernameError);
+        return;
+      } else {
+        setPasswordError(result.passwordError);
+        return;
       }
+    }
+
+    const role = result.role;
+
+    if (role === "admin") {
+      window.location.href = "http://127.0.0.1:5000/admin/user/";
+      setLogin(true);
+    } else if (role === "student") {
+      setLogin(true);
+    } else {
+      setLogin(false);
     }
   };
 
@@ -61,6 +77,8 @@ function App() {
                 value={usernameAttempt}
                 onChange={(e) => setUserNameAttempt(e.target.value)}
                 variant="outlined"
+                error={usernameError !== ""}
+                helperText={usernameError}
               ></TextField>
               <TextField
                 label="Passward"
@@ -68,6 +86,8 @@ function App() {
                 value={passwordAttempt}
                 onChange={(e) => setPasswordAttempt(e.target.value)}
                 variant="outlined"
+                error={passwordError !== ""}
+                helperText={passwordError}
               ></TextField>
 
               <Button onClick={checkLogin} variant="contained">
