@@ -1,9 +1,9 @@
-from enum import unique
 from flask import Flask, jsonify, request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager, UserMixin, current_user
 from flask_cors import CORS
+from flask_login.utils import login_user
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -13,7 +13,11 @@ app.secret_key = "this is my secret key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
 db = SQLAlchemy(app)
 
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/api/*": {"origins": "http://localhost:5173"}},
+)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -30,8 +34,12 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(50), unique=True, nullable=False)
+    role = db.Column(db.String(20), default="student")
 
     classes = db.relationship("Course", secondary=enrollments, backref="students")
+
+    def checkPassword(self, passwordAttempt):
+        return self.password == passwordAttempt
 
 
 class Course(db.Model):
@@ -51,7 +59,23 @@ admin = Admin(app, name="AURA Admin")
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Course, db.session))
 
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.json
+
+    user = User.query.filter_by(username=data.get("username")).first()
+
+    if user and user.checkPassword(data.get("password")):
+        login_user(user)
+
+        return jsonify({"role": user.role, "username": user.username})
+
+    return jsonify({"error": "Invalid credentials"}), 401
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+
     app.run(debug=True, port=5000)

@@ -13,6 +13,33 @@ import "./App.css";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
+  const [isAdmin, setAdmin] = useState(false);
+  const [usernameAttempt, setUserNameAttempt] = useState("");
+  const [passwordAttempt, setPasswordAttempt] = useState("");
+
+  const checkLogin = async () => {
+    const response = await fetch("http://127.0.0.1:5000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: usernameAttempt,
+        password: passwordAttempt,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      const role = result.role;
+
+      if (role === "admin") {
+        window.location.href = "http://127.0.0.1:5000/admin/user/";
+        setLogin(true);
+      }
+    }
+  };
 
   if (!isLogin) {
     return (
@@ -29,14 +56,23 @@ function App() {
             <Typography className="card-title">Sign In</Typography>
 
             <Box className="text-fields">
-              <TextField label="User Name" variant="outlined"></TextField>
+              <TextField
+                label="User Name"
+                value={usernameAttempt}
+                onChange={(e) => setUserNameAttempt(e.target.value)}
+                variant="outlined"
+              ></TextField>
               <TextField
                 label="Passward"
                 type="password"
+                value={passwordAttempt}
+                onChange={(e) => setPasswordAttempt(e.target.value)}
                 variant="outlined"
               ></TextField>
 
-              <Button variant="contained">Submit</Button>
+              <Button onClick={checkLogin} variant="contained">
+                Submit
+              </Button>
             </Box>
           </Paper>
         </Box>
