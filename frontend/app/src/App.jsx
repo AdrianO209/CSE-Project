@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ThemeProvider,
   CssBaseline,
@@ -31,6 +31,18 @@ function App() {
   const [usernameError, setUsernameError] = useState("");
   const [username, setUsername] = useState("");
   const [tab, setTab] = useState("1");
+  const [courses, setCourses] = useState([]);
+
+  const fetchCourses = () => {
+    fetch("http://localhost:5001/api/courses", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setCourses(data))
+      .catch((err) => console.error("Error:", err));
+  };
+
+  useEffect(() => {
+    if (isLogin) fetchCourses();
+  }, [isLogin]);
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
@@ -40,11 +52,12 @@ function App() {
     setPasswordError("");
     setUsernameError("");
 
-    const response = await fetch("http://127.0.0.1:5000/api/login", {
+    const response = await fetch("http://localhost:5001/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         username: usernameAttempt,
         password: passwordAttempt,
@@ -67,22 +80,25 @@ function App() {
     setUsername(result.username);
 
     if (result.role === "admin") {
-      window.location.href = "http://127.0.0.1:5000/admin/user/";
+      window.location.href = "http://127.0.0.1:5001/admin/user/";
       setLogin(true);
     } else if (result.role === "student") {
       setLogin(true);
+      fetchCourses();
     } else {
       setLogin(false);
+      fetchCourses();
     }
   };
 
   const logout = async () => {
-    await fetch("/api/logout");
+    await fetch("http://localhost:5001/api/logout", { credentials: "include" });
 
     setLogin(false);
     setRole("");
     setUserNameAttempt("");
     setPasswordAttempt("");
+    setCourses([]);
   };
 
   if (!isLogin) {
@@ -165,26 +181,46 @@ function App() {
               <Tab label="Your Courses" value="1" />
               <Tab label="Add Courses" value="2" />
             </Tabs>
-
             {tab === "1" && (
-              <ListItem
-                secondaryAction={
-                  <IconButton edge="end" aria-label="delete">
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemAvatar>
-                  <Avatar>
-                    <ClassIcon />
-                  </Avatar>
-                </ListItemAvatar>
-
-                <ListItemText primary="Single-line item">Hello</ListItemText>
-              </ListItem>
+              <List>
+                {courses.map((course) => (
+                  <ListItem
+                    key={course.id}
+                    secondaryAction={
+                      <IconButton edge="end">
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemAvatar>
+                      <Avatar>
+                        <ClassIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            sx={{ fontWeight: "bold" }}
+                          >
+                            {course.className}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {course.time}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
             )}
-
-            {tab === "2" && <Typography variant="h3">Hello, 2</Typography>}
           </Paper>
         </Box>
       </ThemeProvider>

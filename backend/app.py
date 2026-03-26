@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from flask_login import LoginManager, UserMixin, current_user, logout_user
 from flask_cors import CORS
-from flask_login.utils import login_user
+from flask_login.utils import login_required, login_user
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -17,12 +17,20 @@ db = SQLAlchemy(app)
 CORS(
     app,
     supports_credentials=True,
-    resources={r"/api/*": {"origins": "http://localhost:5173"}},
+    resources={
+        r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}
+    },
 )
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return jsonify({"error": "Unauthorized. Please log in."}), 401
+
 
 enrollments = db.Table(
     "enrollments",
@@ -60,11 +68,17 @@ admin = Admin(app, name="AURA Admin")
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Course, db.session))
 
-admin.add_link(MenuLink(name="Logout", category="", url="/api/logout"))
+admin.add_link(MenuLink(name="Logout", category="", url="/admin/logout"))
 
 
 @app.route("/api/logout")
 def logout():
+    logout_user()
+    return jsonify({"message": "Successfully logged out"}), 200
+
+
+@app.route("/admin/logout")
+def admin_logout():
     logout_user()
     return redirect("http://localhost:5173")
 
@@ -84,8 +98,17 @@ def login():
     return jsonify({"role": user.role, "username": user.username}), 200
 
 
+@app.route("/api/courses")
+@login_required
+def get_courses():
+    output = []
+    for i in current_user.classes:
+        output.append({"id": i.id, "className": i.className, "time": i.time})
+    return jsonify(output), 200
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
 
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
