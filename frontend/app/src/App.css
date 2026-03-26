@@ -54,3 +54,14 @@ header {
   flex-direction: column;
   gap: 24px;
 }
+
+.interface-page {
+  display: flex;
+  justify-content: center;
+  margin-top: 5%;
+}
+
+.interface {
+  width: 100% !important;
+  max-width: 85% !important;
+}

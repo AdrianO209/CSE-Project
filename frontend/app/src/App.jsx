@@ -8,6 +8,8 @@ import {
   Paper,
   Button,
   Link,
+  Tab,
+  Tabs,
 } from "@mui/material";
 import { auraTheme } from "./theme";
 import "./App.css";
@@ -20,6 +22,11 @@ function App() {
   const [passwordError, setPasswordError] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [username, setUsername] = useState("");
+  const [tab, setTab] = useState("1");
+
+  const handleTabChange = (event, newValue) => {
+    setTab(newValue);
+  };
 
   const checkLogin = async () => {
     setPasswordError("");
@@ -139,6 +146,23 @@ function App() {
             </Link>
           </Box>
         </header>
+        <Box className="interface-page">
+          <Paper elevation={4} className="interface">
+            <Tabs
+              value={tab}
+              onChange={handleTabChange}
+              centered
+              variant="fullWidth"
+            >
+              <Tab label="Your Courses" value="1" />
+              <Tab label="Add Courses" value="2" />
+            </Tabs>
+
+            {tab === "1" && <Typography variant="h3">Hello, 1</Typography>}
+
+            {tab === "2" && <Typography variant="h3">Hello, 2</Typography>}
+          </Paper>
+        </Box>
       </ThemeProvider>
     );
   }
