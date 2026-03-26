@@ -16,6 +16,7 @@ import {
   ListItemText,
   Avatar,
   IconButton,
+  ListSubheader,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClassIcon from "@mui/icons-material/Class";
@@ -183,40 +184,52 @@ function App() {
             </Tabs>
             {tab === "1" && (
               <List>
+                <Box className="list-sub-headers">
+                  <Box></Box>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Course Name
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Instructor
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Time
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Students Enrolled
+                  </ListSubheader>
+                  <Box></Box>
+                </Box>
                 {courses.map((course) => (
-                  <ListItem
-                    key={course.id}
-                    secondaryAction={
-                      <IconButton edge="end">
-                        <DeleteIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemAvatar>
+                  <ListItem key={course.id} className="my-row-class">
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Avatar>
                         <ClassIcon />
                       </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Typography
-                            variant="body1"
-                            sx={{ fontWeight: "bold" }}
-                          >
-                            {course.className}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {course.time}
-                          </Typography>
-                        </Box>
-                      }
-                    />
+                    </Box>
+
+                    <Typography sx={{ fontWeight: "medium" }}>
+                      {course.className}
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                      {course.instructor}
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                      {course.time}
+                    </Typography>
+
+                    <Typography fontWeight="bold" align="center">
+                      {course.enrolled}
+                    </Typography>
+
+                    {/*<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <IconButton edge="end" aria-label="delete" color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                    */}
                   </ListItem>
                 ))}
               </List>

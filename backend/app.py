@@ -6,6 +6,7 @@ from flask_login import LoginManager, UserMixin, current_user, logout_user
 from flask_cors import CORS
 from flask_login.utils import login_required, login_user
 from flask_sqlalchemy import SQLAlchemy
+from wtforms.validators import length
 
 
 app = Flask(__name__)
@@ -103,7 +104,15 @@ def login():
 def get_courses():
     output = []
     for i in current_user.classes:
-        output.append({"id": i.id, "className": i.className, "time": i.time})
+        output.append(
+            {
+                "id": i.id,
+                "className": i.className,
+                "instructor": i.instructor,
+                "time": i.time,
+                "enrolled": len(i.students),
+            }
+        )
     return jsonify(output), 200
 
 
