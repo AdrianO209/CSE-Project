@@ -221,7 +221,7 @@ function App() {
                     </Typography>
 
                     <Typography fontWeight="bold" align="center">
-                      {course.enrolled}
+                      {course.enrolled}/{course.total}
                     </Typography>
 
                     {/*<Box sx={{ display: "flex", justifyContent: "flex-end" }}>

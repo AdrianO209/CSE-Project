@@ -57,6 +57,7 @@ class Course(db.Model):
     className = db.Column(db.String(80), unique=True, nullable=False)
     instructor = db.Column(db.String(80), unique=False, nullable=False)
     time = db.Column(db.String(80), nullable=False)
+    limit = db.Column(db.Integer, unique=False, nullable=False)
 
 
 @login_manager.user_loader
@@ -111,6 +112,7 @@ def get_courses():
                 "instructor": i.instructor,
                 "time": i.time,
                 "enrolled": len(i.students),
+                "total": i.limit,
             }
         )
     return jsonify(output), 200
