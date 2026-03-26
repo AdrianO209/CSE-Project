@@ -10,7 +10,15 @@ import {
   Link,
   Tab,
   Tabs,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ClassIcon from "@mui/icons-material/Class";
 import { auraTheme } from "./theme";
 import "./App.css";
 
@@ -158,7 +166,23 @@ function App() {
               <Tab label="Add Courses" value="2" />
             </Tabs>
 
-            {tab === "1" && <Typography variant="h3">Hello, 1</Typography>}
+            {tab === "1" && (
+              <ListItem
+                secondaryAction={
+                  <IconButton edge="end" aria-label="delete">
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemAvatar>
+                  <Avatar>
+                    <ClassIcon />
+                  </Avatar>
+                </ListItemAvatar>
+
+                <ListItemText primary="Single-line item">Hello</ListItemText>
+              </ListItem>
+            )}
 
             {tab === "2" && <Typography variant="h3">Hello, 2</Typography>}
           </Paper>
