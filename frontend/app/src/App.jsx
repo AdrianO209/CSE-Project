@@ -17,6 +17,7 @@ import {
   Avatar,
   IconButton,
   ListSubheader,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClassIcon from "@mui/icons-material/Class";
@@ -33,6 +34,7 @@ function App() {
   const [username, setUsername] = useState("");
   const [tab, setTab] = useState("1");
   const [courses, setCourses] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchCourses = () => {
     fetch("http://localhost:5001/api/courses", { credentials: "include" })
@@ -52,6 +54,7 @@ function App() {
   const checkLogin = async () => {
     setPasswordError("");
     setUsernameError("");
+    setIsLoading(true);
 
     const response = await fetch("http://localhost:5001/api/login", {
       method: "POST",
@@ -77,20 +80,31 @@ function App() {
       }
     }
 
-    setRole(result.role);
-    setUsername(result.username);
-
     if (result.role === "admin") {
       window.location.href = "http://127.0.0.1:5001/admin/user/";
-      setLogin(true);
-    } else if (result.role === "student") {
-      setLogin(true);
-      fetchCourses();
-    } else {
-      setLogin(false);
-      fetchCourses();
+      return;
     }
+
+    setRole(result.role);
+    setUsername(result.username);
+    setLogin(true);
+    setIsLoading(false);
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const logout = async () => {
     await fetch("http://localhost:5001/api/logout", { credentials: "include" });
