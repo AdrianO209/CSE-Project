@@ -21,8 +21,10 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClassIcon from "@mui/icons-material/Class";
+import AddIcon from "@mui/icons-material/Add";
 import { auraTheme } from "./theme";
 import "./App.css";
+import { replace } from "react-router-dom";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
@@ -34,17 +36,37 @@ function App() {
   const [username, setUsername] = useState("");
   const [tab, setTab] = useState("1");
   const [courses, setCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [courseMode, setCourseMode] = useState(true);
 
-  const fetchCourses = () => {
-    fetch("http://localhost:5001/api/courses", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setCourses(data))
-      .catch((err) => console.error("Error:", err));
+  const fetchCourses = async () => {
+    const response = await fetch("http://localhost:5001/api/courses", {
+      credentials: "include",
+    });
+    if (!response.ok) {
+      setCourses([]);
+      return;
+    }
+
+    const data = await response.json();
+    setCourses(data);
+  };
+
+  const fetchAllCourse = async () => {
+    const response = await fetch("http://localhost:5001/api/allCourses", {
+      credentials: "include",
+    });
+
+    const data = await response.json();
+    setAllCourses(data);
   };
 
   useEffect(() => {
-    if (isLogin) fetchCourses();
+    if (isLogin) {
+      fetchCourses();
+      fetchAllCourse();
+    }
   }, [isLogin]);
 
   const handleTabChange = (event, newValue) => {
@@ -140,7 +162,7 @@ function App() {
                 helperText={usernameError}
               ></TextField>
               <TextField
-                label="Passward"
+                label="Password"
                 type="password"
                 value={passwordAttempt}
                 onChange={(e) => setPasswordAttempt(e.target.value)}
@@ -237,13 +259,61 @@ function App() {
                     <Typography fontWeight="bold" align="center">
                       {course.enrolled}/{course.total}
                     </Typography>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+            {tab === "2" && (
+              <List>
+                <Box className="list-sub-headers">
+                  <Box></Box>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Course Name
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Instructor
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Time
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Students Enrolled
+                  </ListSubheader>
+                  <Box></Box>
+                </Box>
+                {allCourses.map((course) => (
+                  <ListItem key={allCourses.id} className="my-row-class">
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar>
+                        <ClassIcon />
+                      </Avatar>
+                    </Box>
 
-                    {/*<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                      <IconButton edge="end" aria-label="delete" color="error">
-                        <DeleteIcon />
+                    <Typography sx={{ fontWeight: "medium" }}>
+                      {course.className}
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                      {course.instructor}
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                      {course.time}
+                    </Typography>
+
+                    <Typography fontWeight="bold" align="center">
+                      {course.enrolled}/{course.total}
+                    </Typography>
+
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <IconButton
+                        edge="end"
+                        aria-label="course-action"
+                        color={courseMode ? "success" : "error"}
+                      >
+                        {courseMode ? <AddIcon /> : <DeleteIcon />}
                       </IconButton>
                     </Box>
-                    */}
                   </ListItem>
                 ))}
               </List>

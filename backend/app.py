@@ -118,6 +118,26 @@ def get_courses():
     return jsonify(output), 200
 
 
+@app.route("/api/allCourses")
+@login_required
+def get_all_courses():
+    courses = Course.query.all()
+    output = []
+    for i in courses:
+        output.append(
+            {
+                "id": i.id,
+                "className": i.className,
+                "instructor": i.instructor,
+                "time": i.time,
+                "enrolled": len(i.students),
+                "total": i.limit,
+            }
+        )
+
+    return jsonify(output), 200
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
