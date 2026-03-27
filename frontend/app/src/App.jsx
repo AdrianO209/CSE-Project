@@ -150,6 +150,18 @@ function App() {
     fetchAllCourse();
   };
 
+  const handleDeleteAction = async (courseData) => {
+    await fetch("http://localhost:5001/api/remove", {
+      credentials: "include",
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ course: courseData }),
+    });
+
+    fetchCourses();
+    fetchAllCourse();
+  };
+
   if (!isLogin) {
     return (
       <ThemeProvider theme={auraTheme}>
@@ -325,7 +337,11 @@ function App() {
                           edge="end"
                           aria-label="course-action"
                           color={isEnrolled ? "error" : "success"}
-                          onClick={() => handleAddAction(course.className)}
+                          onClick={() =>
+                            isEnrolled
+                              ? handleDeleteAction(course.className)
+                              : handleAddAction(course.className)
+                          }
                         >
                           {isEnrolled ? <DeleteIcon /> : <AddIcon />}
                         </IconButton>

@@ -6,7 +6,6 @@ from flask_login import LoginManager, UserMixin, current_user, logout_user
 from flask_cors import CORS
 from flask_login.utils import login_required, login_user
 from flask_sqlalchemy import SQLAlchemy
-from wtforms.validators import length
 
 
 app = Flask(__name__)
@@ -158,6 +157,25 @@ def add():
         return jsonify({"message": "Successfully, joined the class"}), 201
 
     return jsonify({"error": "This course doesn't exists"}), 404
+
+
+@app.route("/api/remove", methods=["DELETE"])
+@login_required
+def remove():
+    data = request.json
+    course_name = data.get("course")
+    find_course = Course.query.filter_by(className=course_name).first()
+
+    if find_course:
+        if find_course in current_user.classes:
+            current_user.classes.remove(find_course)
+            db.session.commit()
+
+            return jsonify({"message": f"Successful, deleted {course_name}"}), 200
+        else:
+            return jsonify(({"error": "You are not enrolled in this course"})), 400
+
+    return jsonify({"error": "Course not found"}), 404
 
 
 if __name__ == "__main__":
