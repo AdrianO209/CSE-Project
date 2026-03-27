@@ -1,3 +1,4 @@
+from blinker import default_namespace
 from flask import Flask, jsonify, request, redirect
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -36,6 +37,7 @@ enrollments = db.Table(
     "enrollments",
     db.Column("user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
     db.Column("class_id", db.Integer, db.ForeignKey("course.id"), primary_key=True),
+    db.Column("grade", db.String(5), default=("N/A")),
 )
 
 
