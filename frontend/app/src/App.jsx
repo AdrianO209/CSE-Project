@@ -18,6 +18,7 @@ import {
   IconButton,
   ListSubheader,
   CircularProgress,
+  selectClasses,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClassIcon from "@mui/icons-material/Class";
@@ -37,6 +38,7 @@ function App() {
   const [courses, setCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [editCourse, setEditCourse] = useState(null);
 
   const fetchCourses = async () => {
     const response = await fetch("http://localhost:5001/api/courses", {
@@ -136,6 +138,8 @@ function App() {
     setUserNameAttempt("");
     setPasswordAttempt("");
     setCourses([]);
+    setEditCourse(null);
+    setTab("1");
   };
 
   const handleAddAction = async (courseData) => {
@@ -162,6 +166,11 @@ function App() {
 
     fetchCourses();
     fetchAllCourse();
+  };
+
+  const handleEditClick = (course) => {
+    setEditCourse(course);
+    setTab("3");
   };
 
   if (!isLogin) {
@@ -211,9 +220,114 @@ function App() {
         <CssBaseline />
         <header className="header">
           <Box className="menu">
-            <Typography variant="h1">Aura</Typography>
+            <Typography variant="h2">Welcome, {username}</Typography>
+            <Button
+              variant="outlined"
+              onClick={logout}
+              sx={{
+                color: "white",
+                borderColor: "white",
+                "&:hover": {
+                  borderColor: "#ff5252",
+                  color: "#ff5252",
+                  backgroundColor: "rgba(255, 82, 82, 0.1)",
+                },
+              }}
+            >
+              Log Out
+            </Button>
           </Box>
         </header>
+        <Box className="interface-page">
+          <Paper elevation={4} className="interface">
+            <Tabs
+              value={tab}
+              onChange={handleTabChange}
+              centered
+              variant="fullWidth"
+            >
+              <Tab label="Your Schedule" value="1" />
+            </Tabs>
+            {tab === "1" && (
+              <List>
+                <Box className="list-sub-headers">
+                  <Box></Box>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Course Name
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Instructor
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Time
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Students Enrolled
+                  </ListSubheader>
+                  <Box></Box>
+                </Box>
+                {courses.map((course) => (
+                  <ListItem key={course.id} className="my-row-class">
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar>
+                        <ClassIcon />
+                      </Avatar>
+                    </Box>
+
+                    <Typography
+                      sx={{
+                        fontWeight: "medium",
+                        cursor: "pointer",
+                        color: "#6a5acd",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                      onClick={() => handleEditClick(course)}
+                    >
+                      {course.className}
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                      {course.instructor}
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                      {course.time}
+                    </Typography>
+
+                    <Typography fontWeight="bold" align="center">
+                      {course.enrolled}/{course.total}
+                    </Typography>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+            {tab === "3" && editCourse && (
+              <List>
+                <Box className="edit-page">
+                  <Typography variant="h3">{editCourse.className}</Typography>
+                </Box>
+
+                <Box className="edit-subheaders">
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Student's Name
+                  </ListSubheader>
+                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                    Grade
+                  </ListSubheader>
+                </Box>
+
+                <Box className="students-rows">
+                  {editCourse.studentList &&
+                    editCourse.studentList.map((studentName, index) => (
+                      <Typography variant="body1" key={index}>
+                        {studentName}
+                      </Typography>
+                    ))}
+                </Box>
+              </List>
+            )}
+          </Paper>
+        </Box>
       </ThemeProvider>
     );
   } else {

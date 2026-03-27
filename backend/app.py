@@ -117,15 +117,25 @@ def login():
 @login_required
 def get_courses():
     output = []
-    for i in current_user.classes:
+    myCourses = []
+
+    if current_user.role == "student":
+        myCourses = current_user.classes
+    elif current_user.role == "teacher" or current_user.role == "admin":
+        myCourses = Course.query.filter_by(instructor=current_user.username).all()
+
+    for i in myCourses:
         output.append(
             {
                 "id": i.id,
                 "className": i.className,
                 "instructor": i.instructor,
                 "time": i.time,
-                "enrolled": len(i.students),
+                "enrolled": len([u for u in i.students if u.role.lower() == "student"]),
                 "total": i.limit,
+                "studentList": [
+                    u.username for u in i.students if u.role.lower() == "student"
+                ],
             }
         )
     return jsonify(output), 200
