@@ -318,11 +318,16 @@ function App() {
 
                 <Box className="students-rows">
                   {editCourse.studentList &&
-                    editCourse.studentList.map((studentName, index) => (
-                      <Typography variant="body1" key={index}>
-                        {studentName}
-                      </Typography>
-                    ))}
+                    editCourse.studentList.map((entry) => {
+                      const [name, grade] = entry.split(" - Grade: ");
+
+                      return (
+                        <Box>
+                          <Typography variant="body1">{name}</Typography>
+                          <Typography variant="body1">{grade}</Typography>
+                        </Box>
+                      );
+                    })}
                 </Box>
               </List>
             )}

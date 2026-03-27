@@ -127,6 +127,21 @@ def get_courses():
         myCourses = Course.query.filter_by(instructor=current_user.username).all()
 
     for i in myCourses:
+        gradeList = []
+
+        for u in i.students:
+            if u.role.lower() == "student":
+                grade_query = (
+                    db.session.query(enrollments.c.grade)
+                    .filter(
+                        enrollments.c.user_id == u.id, enrollments.c.class_id == i.id
+                    )
+                    .first()
+                )
+
+                actual_grade = grade_query[0] if grade_query else "N/A"
+                gradeList.append(f"{u.username} - Grade: {actual_grade}")
+
         output.append(
             {
                 "id": i.id,
@@ -135,9 +150,7 @@ def get_courses():
                 "time": i.time,
                 "enrolled": len([u for u in i.students if u.role.lower() == "student"]),
                 "total": i.limit,
-                "studentList": [
-                    u.username for u in i.students if u.role.lower() == "student"
-                ],
+                "studentList": gradeList,
             }
         )
     return jsonify(output), 200
