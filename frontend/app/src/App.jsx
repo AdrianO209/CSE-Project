@@ -24,7 +24,6 @@ import ClassIcon from "@mui/icons-material/Class";
 import AddIcon from "@mui/icons-material/Add";
 import { auraTheme } from "./theme";
 import "./App.css";
-import { replace } from "react-router-dom";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
@@ -38,7 +37,6 @@ function App() {
   const [courses, setCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [courseMode, setCourseMode] = useState(true);
 
   const fetchCourses = async () => {
     const response = await fetch("http://localhost:5001/api/courses", {
@@ -295,42 +293,46 @@ function App() {
                   </ListSubheader>
                   <Box></Box>
                 </Box>
-                {allCourses.map((course) => (
-                  <ListItem key={allCourses.id} className="my-row-class">
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Avatar>
-                        <ClassIcon />
-                      </Avatar>
-                    </Box>
+                {allCourses.map((course) => {
+                  const isEnrolled = courses.some((c) => c.id === course.id);
 
-                    <Typography sx={{ fontWeight: "medium" }}>
-                      {course.className}
-                    </Typography>
+                  return (
+                    <ListItem key={course.id} className="my-row-class">
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Avatar>
+                          <ClassIcon />
+                        </Avatar>
+                      </Box>
 
-                    <Typography color="text.secondary">
-                      {course.instructor}
-                    </Typography>
+                      <Typography sx={{ fontWeight: "medium" }}>
+                        {course.className}
+                      </Typography>
 
-                    <Typography color="text.secondary">
-                      {course.time}
-                    </Typography>
+                      <Typography color="text.secondary">
+                        {course.instructor}
+                      </Typography>
 
-                    <Typography fontWeight="bold" align="center">
-                      {course.enrolled}/{course.total}
-                    </Typography>
+                      <Typography color="text.secondary">
+                        {course.time}
+                      </Typography>
 
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                      <IconButton
-                        edge="end"
-                        aria-label="course-action"
-                        color={courseMode ? "success" : "error"}
-                        onClick={() => handleAddAction(course.className)}
-                      >
-                        {courseMode ? <AddIcon /> : <DeleteIcon />}
-                      </IconButton>
-                    </Box>
-                  </ListItem>
-                ))}
+                      <Typography fontWeight="bold" align="center">
+                        {course.enrolled}/{course.total}
+                      </Typography>
+
+                      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <IconButton
+                          edge="end"
+                          aria-label="course-action"
+                          color={isEnrolled ? "error" : "success"}
+                          onClick={() => handleAddAction(course.className)}
+                        >
+                          {isEnrolled ? <DeleteIcon /> : <AddIcon />}
+                        </IconButton>
+                      </Box>
+                    </ListItem>
+                  );
+                })}
               </List>
             )}
           </Paper>
