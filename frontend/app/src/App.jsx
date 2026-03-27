@@ -316,15 +316,24 @@ function App() {
                   </ListSubheader>
                 </Box>
 
-                <Box className="students-rows">
+                <Box>
                   {editCourse.studentList &&
                     editCourse.studentList.map((entry) => {
                       const [name, grade] = entry.split(" - Grade: ");
 
                       return (
-                        <Box>
-                          <Typography variant="body1">{name}</Typography>
-                          <Typography variant="body1">{grade}</Typography>
+                        <Box className="students-row">
+                          <Typography
+                            variant="body1"
+                            sx={{ marginLeft: "50px", fontWeight: "medium" }}
+                          >
+                            {name}
+                          </Typography>
+                          <TextField
+                            label={grade}
+                            variant="outlined"
+                            sx={{ maxWidth: "100px" }}
+                          ></TextField>
                         </Box>
                       );
                     })}
