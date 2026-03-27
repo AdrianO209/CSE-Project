@@ -138,6 +138,20 @@ function App() {
     setCourses([]);
   };
 
+  const handleAddAction = async (courseData) => {
+    await fetch("http://localhost:5001/api/add", {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ course: courseData }),
+    });
+
+    fetchCourses();
+    fetchAllCourse();
+  };
+
   if (!isLogin) {
     return (
       <ThemeProvider theme={auraTheme}>
@@ -310,6 +324,7 @@ function App() {
                         edge="end"
                         aria-label="course-action"
                         color={courseMode ? "success" : "error"}
+                        onClick={() => handleAddAction(course.className)}
                       >
                         {courseMode ? <AddIcon /> : <DeleteIcon />}
                       </IconButton>

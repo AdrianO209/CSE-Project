@@ -138,6 +138,28 @@ def get_all_courses():
     return jsonify(output), 200
 
 
+@app.route("/api/add", methods=["POST"])
+@login_required
+def add():
+    data = request.json
+    course_name = data.get("course")
+    course_to_join = Course.query.filter_by(className=course_name).first()
+
+    if course_to_join:
+        if course_to_join in current_user.classes:
+            return jsonify({"error": "Already in this course."}), 400
+
+        if len(course_to_join.students) >= course_to_join.limit:
+            return jsonify({"error": "This course is at maximum capacity!"}), 400
+
+        current_user.classes.append(course_to_join)
+        db.session.commit()
+
+        return jsonify({"message": "Successfully, joined the class"}), 201
+
+    return jsonify({"error": "This course doesn't exists"}), 404
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
