@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, redirect
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from flask_login import LoginManager, UserMixin, current_user, logout_user
@@ -24,7 +24,7 @@ CORS(
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.login_view = "login"  # type: ignore
 
 
 @login_manager.unauthorized_handler
@@ -39,7 +39,7 @@ enrollments = db.Table(
 )
 
 
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(50), unique=False, nullable=False)
@@ -51,7 +51,7 @@ class User(db.Model, UserMixin):
         return self.password == passwordAttempt
 
 
-class Course(db.Model):
+class Course(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     className = db.Column(db.String(80), unique=True, nullable=False)
     instructor = db.Column(db.String(80), unique=False, nullable=False)
@@ -64,7 +64,21 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-admin = Admin(app, name="AURA Admin")
+class HomeRedirectView(AdminIndexView):
+    @expose("/")
+    def index(self):  # type: ignore
+        return redirect("/admin/user/")
+
+    # THE GUARD: Only returns True if they are logged in AND an admin
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role == "admin"
+
+    # THE BOUNCER: What happens if a student tries to sneak in?
+    def inaccessible_callback(self, name, **kwargs):
+        return "Access Denied: You must be an admin to view this page.", 403
+
+
+admin = Admin(app, name="AURA Admin", index_view=HomeRedirectView())
 
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Course, db.session))

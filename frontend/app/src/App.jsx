@@ -93,9 +93,11 @@ function App() {
     if (!response.ok) {
       if (response.status === 404) {
         setUsernameError(result.usernameError);
+        setIsLoading(false);
         return;
       } else {
         setPasswordError(result.passwordError);
+        setIsLoading(false);
         return;
       }
     }
@@ -221,14 +223,21 @@ function App() {
         <header className="header">
           <Box className="menu">
             <Typography variant="h2">Welcome, {username}</Typography>
-            <Link
-              component="button"
+            <Button
+              variant="outlined"
               onClick={logout}
-              variant="h4"
-              sx={{ color: "#ff5252", textDecorationStyle: "#ff5252" }}
+              sx={{
+                color: "white",
+                borderColor: "white",
+                "&:hover": {
+                  borderColor: "#ff5252",
+                  color: "#ff5252",
+                  backgroundColor: "rgba(255, 82, 82, 0.1)",
+                },
+              }}
             >
               Log Out
-            </Link>
+            </Button>
           </Box>
         </header>
         <Box className="interface-page">
@@ -320,11 +329,11 @@ function App() {
                         {course.className}
                       </Typography>
 
-                      <Typography color="text.secondary">
+                      <Typography sx={{ fontWeight: "medium" }}>
                         {course.instructor}
                       </Typography>
 
-                      <Typography color="text.secondary">
+                      <Typography sx={{ fontWeight: "medium" }}>
                         {course.time}
                       </Typography>
 
