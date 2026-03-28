@@ -217,6 +217,30 @@ def remove():
     return jsonify({"error": "Course not found"}), 404
 
 
+@app.route("/api/editGrade", methods=["POST"])
+@login_required
+def editGrade():
+    data = request.json
+    userName = data.get("user")
+    courseId = data.get("courseId")
+    newGrade = data.get("grade")
+    student = User.query.filter_by(username=userName).first()
+
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    update = (
+        enrollments.update()
+        .where(enrollments.c.user_id == student.id, enrollments.c.class_id == courseId)
+        .values(grade=newGrade)
+    )
+
+    db.session.execute(update)
+    db.session.commit()
+
+    return jsonify({"message": "Grade updated successfully"})
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

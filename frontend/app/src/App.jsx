@@ -173,6 +173,34 @@ function App() {
     setTab("3");
   };
 
+  const handleGradeChange = async (studentName, course_Id, editGrade) => {
+    const response = await fetch("http://localhost:5001/api/editGrade", {
+      credentials: "include",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: studentName,
+        courseId: course_Id,
+        grade: editGrade,
+      }),
+    });
+
+    if (response.ok) {
+      fetchCourses();
+
+      setEditCourse((prev) => {
+        if (!prev) return prev;
+        const newList = prev.studentList.map((entry) => {
+          if (entry.startsWith(studentName)) {
+            return `${studentName} - Grade: ${editGrade}`;
+          }
+          return entry;
+        });
+        return { ...prev, studentList: newList };
+      });
+    }
+  };
+
   if (!isLogin) {
     return (
       <ThemeProvider theme={auraTheme}>
@@ -246,7 +274,19 @@ function App() {
               centered
               variant="fullWidth"
             >
-              <Tab label="Your Schedule" value="1" />
+              <Tab
+                label="Your Schedule"
+                value="1"
+                sx={{
+                  transition: "0.2s",
+                  "&:hover": {
+                    backgroundColor: "rgba(106, 90, 205, 0.08)",
+                    borderRadius: "8px 8px 0 0",
+                    color: "#6a5acd",
+                  },
+                  cursor: "pointer",
+                }}
+              />
             </Tabs>
             {tab === "1" && (
               <List>
@@ -308,32 +348,91 @@ function App() {
                 </Box>
 
                 <Box className="edit-subheaders">
-                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                  <ListSubheader sx={{ fontWeight: "bold" }}>
                     Student's Name
                   </ListSubheader>
-                  <ListSubheader disableSticky sx={{ fontWeight: "bold" }}>
+                  <ListSubheader sx={{ fontWeight: "bold" }}>
                     Grade
+                  </ListSubheader>
+                  <ListSubheader sx={{ fontWeight: "bold" }}>
+                    Edit Grade
                   </ListSubheader>
                 </Box>
 
                 <Box>
                   {editCourse.studentList &&
-                    editCourse.studentList.map((entry) => {
+                    editCourse.studentList.map((entry, index) => {
                       const [name, grade] = entry.split(" - Grade: ");
 
                       return (
-                        <Box className="students-row">
+                        <Box
+                          className="students-row"
+                          key={index}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            p: 2,
+                            cursor: "pointer",
+                            "&:hover": { bgcolor: "#f5f5f5" },
+                          }}
+                        >
+                          <Typography variant="body1">{name}</Typography>
                           <Typography
                             variant="body1"
-                            sx={{ marginLeft: "50px", fontWeight: "medium" }}
+                            sx={{ fontWeight: "bold", color: "#6a5acd" }}
                           >
-                            {name}
+                            {grade}
                           </Typography>
-                          <TextField
-                            label={grade}
-                            variant="outlined"
-                            sx={{ maxWidth: "100px" }}
-                          ></TextField>
+
+                          <Box className="edit-controls">
+                            <TextField
+                              defaultValue={grade === "None" ? "" : grade}
+                              size="small"
+                              type="number"
+                              onInput={(e) => {
+                                let val = parseInt(e.target.value, 10);
+
+                                if (val > 100) e.target.value = 100;
+
+                                if (val < 0) e.target.value = 0;
+                              }}
+                              placeholder="N/A"
+                              variant="standard"
+                              sx={{ width: "60px" }}
+                              slotProps={{
+                                htmlInput: {
+                                  id: `grade-input-${name}`,
+                                  style: { textAlign: "right" },
+                                  min: 0,
+                                  max: 100,
+                                },
+                              }}
+                            ></TextField>
+                            <Button
+                              size="small"
+                              variant="contained"
+                              sx={{
+                                minWidth: "unset",
+                                px: 1,
+                                py: 0.5,
+                                marginLeft: "10px",
+                                fontSize: "0.75rem",
+                              }}
+                              onClick={() => {
+                                const newValue = document.getElementById(
+                                  `grade-input-${name}`,
+                                ).value;
+                                handleGradeChange(
+                                  name,
+                                  editCourse.id,
+                                  newValue,
+                                );
+                              }}
+                            >
+                              Save
+                            </Button>
+                          </Box>
                         </Box>
                       );
                     })}

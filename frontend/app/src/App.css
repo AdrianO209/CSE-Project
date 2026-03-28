@@ -69,7 +69,7 @@ header {
 
 .edit-subheaders {
   display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
   padding: 8px 16px;
   border-bottom: 1px solid #eee;
 }
@@ -96,7 +96,7 @@ header {
 
 .students-row {
   display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
   padding: 8px 16px;
   border-bottom: 1px solid #eee;
 }
