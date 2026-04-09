@@ -1,4 +1,3 @@
-from blinker import default_namespace
 from flask import Flask, jsonify, request, redirect
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -66,6 +65,19 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+class ProtectedModelView(ModelView):
+    def is_accessible(self):
+        # ensures user is logged in and role is exactly 'admin' (case-insensitive)
+        return (
+            current_user.is_authenticated
+            and str(getattr(current_user, "role", "")).lower() == "admin"
+        )
+
+    def inaccessible_callback(self, name, **kwargs):
+        # Redirects unauthorized users or shows an error
+        return "Access Denied: Admin privileges required.", 403
+
+
 class HomeRedirectView(AdminIndexView):
     @expose("/")
     def index(self):  # type: ignore
@@ -73,7 +85,15 @@ class HomeRedirectView(AdminIndexView):
 
     # THE GUARD: Only returns True if they are logged in AND an admin
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.role == "admin"
+        print(f"DEBUG: User is authenticated: {current_user.is_authenticated}")
+        if current_user.is_authenticated:
+            print(f"DEBUG: User Role: '{current_user.role}'")
+        else:
+            print("DEBUG: User is Anonymous")
+        return (
+            current_user.is_authenticated
+            and str(getattr(current_user, "role", "")).lower() == "admin"
+        )
 
     # THE BOUNCER: What happens if a student tries to sneak in?
     def inaccessible_callback(self, name, **kwargs):
@@ -82,8 +102,8 @@ class HomeRedirectView(AdminIndexView):
 
 admin = Admin(app, name="AURA Admin", index_view=HomeRedirectView())
 
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Course, db.session))
+admin.add_view(ProtectedModelView(User, db.session))
+admin.add_view(ProtectedModelView(Course, db.session))
 
 admin.add_link(MenuLink(name="Logout", category="", url="/admin/logout"))
 

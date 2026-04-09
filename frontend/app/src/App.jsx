@@ -105,7 +105,7 @@ function App() {
     }
 
     if (result.role === "admin") {
-      window.location.href = "http://127.0.0.1:5001/admin/user/";
+      window.location.href = "http://localhost:5001/admin/user/";
       return;
     }
 
